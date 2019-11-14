@@ -6,6 +6,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     private Rigidbody2D _rigid;
+    private PlayerAnimation _anim;
 
     [SerializeField]
     private float _jumpForce = 3.0f;
@@ -19,10 +20,17 @@ public class Player : MonoBehaviour
     void Start()
     {
         _rigid = GetComponent<Rigidbody2D>();
+        _anim = GetComponent<PlayerAnimation>();
     }
 
     // Update is called once per frame
     void Update()
+    {
+        Movement();
+       
+    }
+
+    void Movement()
     {
         float horizontaInput = Input.GetAxis("Horizontal");
         _rigid.velocity = new Vector2(horizontaInput * _speed, _rigid.velocity.y);
@@ -39,6 +47,5 @@ public class Player : MonoBehaviour
         {
             _grounded = true;
         }
-        
     }
 }
