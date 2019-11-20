@@ -15,7 +15,6 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _speed = 3.0f;
     
-    // Start is called before the first frame update
     void Start()
     {
         _rigid = GetComponent<Rigidbody2D>();
@@ -26,20 +25,33 @@ public class Player : MonoBehaviour
     void Update()
     {
         Movement();
+
        
+    }
+
+    void Attack()
+    {
+        _anim.Attack();
     }
 
     void Movement()
     {
-        float horizontaInput = Input.GetAxis("Horizontal");
-        _rigid.velocity = new Vector2(horizontaInput * _speed, _rigid.velocity.y);
+        float move = Input.GetAxis("Horizontal");
 
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
         {
             _rigid.velocity = new Vector2(_rigid.velocity.x, _jumpForce);
             resetJump = true;
             StartCoroutine(ResetJumpRoutine());
+        } else if (Input.GetKeyDown(KeyCode.E))
+        {
+            Attack();
         }
+
+        _rigid.velocity = new Vector2(move * _speed, _rigid.velocity.y);
+
+        _anim.Move(move);
+
     }
 
     bool IsGrounded()

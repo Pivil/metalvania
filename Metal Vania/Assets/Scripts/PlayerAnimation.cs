@@ -16,7 +16,12 @@ public class PlayerAnimation : MonoBehaviour
     // Update is called once per frame
     public void Move(float move)
     {
-        _anim.SetFloat("Move",Mathf.Abs(move));
+        _anim.SetFloat("Move", Mathf.Abs(move));
 
+    }
+
+    public void Attack()
+    {
+        _anim.SetTrigger("Attack");
     }
 }
