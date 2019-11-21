@@ -7,26 +7,59 @@ public class Player : MonoBehaviour
 {
     private Rigidbody2D _rigid;
     private PlayerAnimation _anim;
+    private SpriteRenderer _sprite;
+
+    [SerializeField]
+    private float _speed = 3.0f;
 
     [SerializeField]
     private float _jumpForce = 3.0f;
     private bool resetJump = false;
 
-    [SerializeField]
-    private float _speed = 3.0f;
-    
+
+    // ### DASH ###
+    public float dashSpeed;
+    public float startDashTime;
+    private float dashTime;
+    private int direction;
+    public bool isDashing;
+
+
     void Start()
     {
         _rigid = GetComponent<Rigidbody2D>();
         _anim = GetComponent<PlayerAnimation>();
+        _sprite = GetComponentInChildren<SpriteRenderer>();
+        dashTime = startDashTime;
+
     }
 
-    // Update is called once per frame
     void Update()
     {
         Movement();
 
-       
+    }
+
+    void Dash(float move)
+    {
+        if (dashTime <= 0)
+        {
+
+            direction = 0;
+            dashTime = startDashTime;
+            _rigid.velocity = Vector2.zero;
+        }
+        else
+        {
+            isDashing = true;
+            dashTime -= Time.deltaTime;
+            if (move > 0) direction = 1;
+            else if (move < 0) direction = -1;
+            _rigid.velocity = new Vector2(direction * dashSpeed, _rigid.velocity.y);
+            StartCoroutine(ResetDash());
+            print("Dashing : " + _rigid.velocity);
+        }
+
     }
 
     void Attack()
@@ -38,17 +71,34 @@ public class Player : MonoBehaviour
     {
         float move = Input.GetAxis("Horizontal");
 
+        if (move > 0)
+        {
+            _sprite.flipX = false;
+        }
+
+        else if (move < 0)
+        {
+            _sprite.flipX = true;
+        }
+
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
         {
             _rigid.velocity = new Vector2(_rigid.velocity.x, _jumpForce);
             resetJump = true;
             StartCoroutine(ResetJumpRoutine());
-        } else if (Input.GetKeyDown(KeyCode.E))
+        } 
+        else if (Input.GetKeyDown(KeyCode.E))
         {
             Attack();
+        } 
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            Dash(move);
         }
+       
 
-        _rigid.velocity = new Vector2(move * _speed, _rigid.velocity.y);
+        if (!isDashing)
+            _rigid.velocity = new Vector2(move * _speed, _rigid.velocity.y);
 
         _anim.Move(move);
 
@@ -61,6 +111,11 @@ public class Player : MonoBehaviour
        
     }
 
+    IEnumerator ResetDash()
+    {
+        yield return new WaitForSeconds(startDashTime);
+        isDashing = false;
+    }
 
     IEnumerator ResetJumpRoutine()
     {
