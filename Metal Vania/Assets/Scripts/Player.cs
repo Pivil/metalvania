@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
 {
     private Rigidbody2D _rigid;
     private PlayerAnimation _anim;
+    [SerializeField]
     private SpriteRenderer _sprite;
 
     [SerializeField]
