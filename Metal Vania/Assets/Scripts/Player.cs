@@ -22,7 +22,7 @@ public class Player : MonoBehaviour
     public float dashSpeed;
     public float startDashTime;
     private float dashTime;
-    private int direction;
+    private float direction;
     public bool isDashing;
 
 
@@ -43,24 +43,51 @@ public class Player : MonoBehaviour
 
     void Dash(float move)
     {
-        if (dashTime <= 0)
-        {
+        Collider2D dashArea = Physics2D.OverlapCircle(_rigid.position, 1f, 1<<9);
 
-            direction = 0;
-            dashTime = startDashTime;
-            _rigid.velocity = Vector2.zero;
-        }
-        else
-        {
+        if (dashArea.isTrigger) {
+            //Vector2 player = transform.position;
+            //Vector2 iron = dashArea.transform.position;
+            //direction = AngleBetweenVector2(iron, player);
+            //Debug.Log("Direction: " + direction);
+            if (dashTime <= 0)
+            {
+
+                direction = 0;
+                dashTime = startDashTime;
+                _rigid.velocity = Vector2.zero;
+            }
+            else
+            {
             isDashing = true;
             dashTime -= Time.deltaTime;
-            if (move > 0) direction = 1;
-            else if (move < 0) direction = -1;
-            _rigid.velocity = new Vector2(direction * dashSpeed, _rigid.velocity.y);
+            Vector2 player = transform.position;
+            Vector2 iron = dashArea.transform.position;
+            direction = AngleBetweenVector2(player, iron);
+            float _x, _y;
+            if (direction >= -90.0f && direction <= 90.0f)
+            {
+                _x = -1.0f;
+            }
+            else
+            {
+                _x = 1.0f;
+            }
+
+            if (direction >= 0.0f && direction <= 180.0f)
+            {
+                _y = -1.0f;
+            }
+            else
+            {
+                _y = 1.0f;
+            }
+
+            _rigid.velocity = new Vector2(_x * dashSpeed, _y * dashSpeed);
             StartCoroutine(ResetDash());
             print("Dashing : " + _rigid.velocity);
         }
-
+        }
     }
 
     void Attack()
@@ -123,5 +150,12 @@ public class Player : MonoBehaviour
         resetJump = true;
         yield return new WaitForSeconds(0.1f);
         resetJump = false;
+    }
+
+    private float AngleBetweenVector2(Vector2 vec1, Vector2 vec2)
+    {
+        Vector2 diference = vec2 - vec1;
+        float sign = (vec2.y < vec1.y) ? -1.0f : 1.0f;
+        return Vector2.Angle(Vector2.right, diference) * sign;
     }
 }
